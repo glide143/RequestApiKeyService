@@ -1,11 +1,16 @@
 package com.example.demo.service.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.demo.domain.GlobeKey;
 import com.example.demo.service.manager.GlobeLabsRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class GlobeLabsRequestImpl implements GlobeLabsRequest {
@@ -25,9 +30,18 @@ public class GlobeLabsRequestImpl implements GlobeLabsRequest {
 	}
 
 	@Override
-	public void getCode(String code) {
-		System.out.println("CODE: " + code);
-
+	public String getCode(String code) {
+		Map<String, String> map = new HashMap<>();
+		map.put("code", code);
+		ObjectMapper mapper = new ObjectMapper();
+		String jsonResult = "";
+		try {
+			jsonResult = mapper.writeValueAsString(map);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return jsonResult;
 	}
 
 }
