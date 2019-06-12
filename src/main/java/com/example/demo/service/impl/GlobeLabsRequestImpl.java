@@ -3,6 +3,8 @@ package com.example.demo.service.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -14,34 +16,40 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class GlobeLabsRequestImpl implements GlobeLabsRequest {
-	private static final String AUTHENTICATION_URL = "http://developer.globelabs.com.ph/oauth/access_token";
+    private static final String AUTHENTICATION_URL = "http://developer.globelabs.com.ph/oauth/access_token";
+    private static Logger log = Logger.getLogger(GlobeLabsRequestImpl.class);
 
-	@Override
-	public GlobeKey getKeys(String appId, String appSecret, String code) {
+    static {
+        BasicConfigurator.configure();
+    }
 
-		RestTemplate restTemplate = new RestTemplate();
+    @Override
+    public GlobeKey getKeys(String appId, String appSecret, String code) {
 
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(AUTHENTICATION_URL)
-				.queryParam("app_id", appId).queryParam("app_secret", appSecret).queryParam("code", code);
+        RestTemplate restTemplate = new RestTemplate();
 
-		GlobeKey response = restTemplate.postForObject(builder.toUriString(), null, GlobeKey.class);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(AUTHENTICATION_URL)
+                                                           .queryParam("app_id", appId)
+                                                           .queryParam("app_secret", appSecret)
+                                                           .queryParam("code", code);
 
-		return response;
-	}
+        GlobeKey response = restTemplate.postForObject(builder.toUriString(), null, GlobeKey.class);
 
-	@Override
-	public String getCode(String code) {
-		Map<String, String> map = new HashMap<>();
-		map.put("code", code);
-		ObjectMapper mapper = new ObjectMapper();
-		String jsonResult = "";
-		try {
-			jsonResult = mapper.writeValueAsString(map);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return jsonResult;
-	}
+        return response;
+    }
+
+    @Override
+    public String getCode(String code) {
+        Map<String, String> map = new HashMap<>();
+        map.put("code", code);
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonResult = "";
+        try {
+            jsonResult = mapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage(), e);
+        }
+        return jsonResult;
+    }
 
 }
