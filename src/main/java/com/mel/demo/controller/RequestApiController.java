@@ -6,16 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping(path="/globe-lab-request", produces="application/json")
 public class RequestApiController {
     @Autowired
     private GlobeLabsRequest service;
 
-    @RequestMapping(value = "/keys",
-                    method = RequestMethod.POST)
+    @PostMapping(value = "/keys")
     @ResponseStatus(HttpStatus.CREATED)
     public GlobeKey displayUser(
             @RequestParam("app_id")
@@ -28,7 +25,7 @@ public class RequestApiController {
         return service.getKeys(appId, appSecret, code).orElse(null);
     }
 
-    @RequestMapping(value = "", method = RequestMethod.GET)
+    @GetMapping(value = "")
     public String displayCode(@RequestParam("code") String code) {
         return service.getCode(code).orElse(null);
     }
