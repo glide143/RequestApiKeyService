@@ -1,53 +1,49 @@
-package com.example.demo.service.impl;
+package com.mel.demo.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mel.demo.domain.GlobeKey;
+import com.mel.demo.service.manager.GlobeLabsRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.example.demo.domain.GlobeKey;
-import com.example.demo.service.manager.GlobeLabsRequest;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 @Service
 public class GlobeLabsRequestImpl implements GlobeLabsRequest {
     private static final String AUTHENTICATION_URL = "http://developer.globelabs.com.ph/oauth/access_token";
-    private static Logger log = Logger.getLogger(GlobeLabsRequestImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobeLabsRequestImpl.class);
 
-    static {
-        BasicConfigurator.configure();
-    }
 
     @Override
-    public GlobeKey getKeys(String appId, String appSecret, String code) {
-
-        RestTemplate restTemplate = new RestTemplate();
-
+    public Optional<GlobeKey> getKeys(String appId, String appSecret, String code) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(AUTHENTICATION_URL)
                                                            .queryParam("app_id", appId)
                                                            .queryParam("app_secret", appSecret)
                                                            .queryParam("code", code);
+       GlobeKey response = new RestTemplate().postForObject(builder.toUriString(), null, GlobeKey.class);
 
-        GlobeKey response = restTemplate.postForObject(builder.toUriString(), null, GlobeKey.class);
-
-        return response;
+        return ofNullable(response);
     }
 
     @Override
-    public String getCode(String code) {
+    public Optional<String> getCode(String code) {
         Map<String, String> map = new HashMap<>();
         map.put("code", code);
         ObjectMapper mapper = new ObjectMapper();
-        String jsonResult = "";
+        Optional<String> jsonResult;
         try {
-            jsonResult = mapper.writeValueAsString(map);
+            jsonResult = ofNullable(mapper.writeValueAsString(map));
         } catch (JsonProcessingException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
+            return Optional.empty();
         }
         return jsonResult;
     }
