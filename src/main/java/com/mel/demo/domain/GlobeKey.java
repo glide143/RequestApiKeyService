@@ -1,4 +1,4 @@
-package com.example.demo.domain;
+package com.mel.demo.domain;
 
 public class GlobeKey {
     private String access_token;
